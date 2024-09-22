@@ -25,6 +25,14 @@
 
 #include <fstream>
 
+#ifdef CreateDirectory
+#undef CreateDirectory
+#endif
+
+#ifdef MoveFile
+#undef MoveFile
+#endif
+
 namespace duckdb {
 
 //===--------------------------------------------------------------------===//

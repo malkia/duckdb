@@ -1,0 +1,178 @@
+cc_library(
+    name = "duckdb_hdrs",
+    hdrs = glob(["src/include/**/*"]),
+    defines = ["DUCKDB_STATIC_BUILD"],
+    strip_include_prefix = "src/include",
+)
+
+cc_library(
+    name = "duckdb_srcs",
+    srcs = glob(["src/**/*.cpp"]),
+    local_defines = [
+        "DUCKDB_SOURCE_ID=\"source_id\"",
+        "DUCKDB_VERSION=\"dummy_version\"",
+    ],
+    deps = [
+        "duckdb_hdrs",
+        "fast_float",
+        "fastpforlib",
+        "fmt",
+        "fsst",
+        "libpg_query",
+        "mbedtls_wrapper",
+        "re2",
+        "utf8proc",
+        "yyjson",        
+        "pcg",
+        "skiplist",        
+        "jaro_winkler",
+        "hyperloglog",
+        "concurrentqueue",
+        "tdigest",
+        "miniz",
+        "httplib",
+    ],
+)
+
+cc_library(
+    name = "fmt",
+    srcs = ["third_party/fmt/format.cc"],
+    hdrs = glob(["third_party/fmt/include/**/*"]),
+    strip_include_prefix = "third_party/fmt/include",
+    deps = ["duckdb_hdrs"],
+)
+
+cc_library(
+    name = "libpg_query",
+    srcs = glob(["third_party/libpg_query/*.cpp"]),
+    hdrs = glob(["third_party/libpg_query/include/**/*"]),
+    strip_include_prefix = "third_party/libpg_query/include",
+    deps = ["duckdb_hdrs"],
+)
+
+cc_library(
+    name = "utf8proc_data",
+    hdrs = ["third_party/utf8proc/utf8proc_data.cpp"],
+    strip_include_prefix = "third_party/utf8proc",
+)
+
+cc_library(
+    name = "utf8proc",
+    srcs = glob(
+        ["third_party/utf8proc/*.cpp"],
+        exclude = ["third_party/utf8proc/utf8proc_data.cpp"],
+    ),
+    hdrs = glob(["third_party/utf8proc/include/**/*"]),
+    strip_include_prefix = "third_party/utf8proc/include",
+    deps = [
+        "duckdb_hdrs",
+        "utf8proc_data",
+    ],
+)
+
+cc_library(
+    name = "re2",
+    srcs = glob(["third_party/re2/**/*.cc"]),
+    hdrs = glob(["third_party/re2/**/*.h"]),
+    strip_include_prefix = "third_party/re2",
+)
+
+cc_library(
+    name = "fastpforlib",
+    srcs = glob(["third_party/fastpforlib/**/*.cpp"]),
+    hdrs = glob(["third_party/fastpforlib/**/*.h"]),
+    strip_include_prefix = "third_party/fastpforlib",
+)
+
+cc_library(
+    name = "mbedtls",
+    srcs = glob(["third_party/mbedtls/library/**/*"]),
+    hdrs = glob(["third_party/mbedtls/include/**/*.h"]),
+    strip_include_prefix = "third_party/mbedtls/include",
+)
+
+cc_library(
+    name = "mbedtls_wrapper",
+    srcs = ["third_party/mbedtls/mbedtls_wrapper.cpp"],
+    hdrs = ["third_party/mbedtls/include/mbedtls_wrapper.hpp"],
+    strip_include_prefix = "third_party/mbedtls/include",
+    deps = [
+        "duckdb_hdrs",
+        "mbedtls",
+    ],
+)
+
+cc_library(
+    name = "yyjson",
+    srcs = ["third_party/yyjson/yyjson.cpp"],
+    hdrs = ["third_party/yyjson/include/yyjson.hpp"],
+    strip_include_prefix = "third_party/yyjson/include",
+    deps = ["duckdb_hdrs"],
+)
+
+cc_library(
+    name = "fsst",
+    hdrs = ["third_party/fsst/fsst.h", "third_party/fsst/libfsst.hpp"],
+    srcs = ["third_party/fsst/libfsst.cpp"],
+    strip_include_prefix = "third_party/fsst",
+)
+
+cc_library(
+    name = "fast_float",
+    hdrs = ["third_party/fast_float/fast_float/fast_float.h"],
+    strip_include_prefix = "third_party/fast_float",
+)
+
+cc_library(
+    name = "pcg",
+    hdrs = glob(["third_party/pcg/*.hpp"]),
+    strip_include_prefix = "third_party/pcg",
+)
+
+cc_library(
+    name = "skiplist",
+    hdrs = glob(["third_party/skiplist/*.h"]),
+    srcs = ["third_party/skiplist/SkipList.cpp"],
+    strip_include_prefix = "third_party/skiplist",
+    deps = ["pcg"],
+)
+
+
+cc_library(
+    name = "jaro_winkler",
+    hdrs = glob(["third_party/jaro_winkler/**/*"]),
+    strip_include_prefix = "third_party/jaro_winkler",
+)
+
+cc_library(
+    name = "hyperloglog",
+    hdrs = ["third_party/hyperloglog/hyperloglog.hpp"],
+    srcs = glob(["third_party/hyperloglog/*.cpp"]) + ["third_party/hyperloglog/sds.hpp"],
+    strip_include_prefix = "third_party/hyperloglog",
+    deps = ["duckdb_hdrs"],
+)
+
+cc_library(
+    name = "concurrentqueue",
+    hdrs = glob(["third_party/concurrentqueue/*.h"]),
+    strip_include_prefix = "third_party/concurrentqueue",
+)
+
+cc_library(
+    name = "tdigest",
+    hdrs = ["third_party/tdigest/t_digest.hpp"],
+    strip_include_prefix = "third_party/tdigest",
+)
+
+cc_library(
+    name = "miniz",
+    hdrs = glob(["third_party/miniz/*.hpp"]),
+    srcs = ["third_party/miniz/miniz.cpp"],
+    strip_include_prefix = "third_party/miniz",
+)
+
+cc_library(
+    name = "httplib",
+    hdrs = ["third_party/httplib/httplib.hpp"],
+    strip_include_prefix = "third_party/httplib",
+)

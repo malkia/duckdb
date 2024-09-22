@@ -1,0 +1,8 @@
+common --enable_platform_specific_config
+
+# Assume Git.Git or Microsoft.Git is installed (using winget install names)
+common:windows --shell_executable="c:\\program files\\git\\usr\\bin\\bash.exe"
+
+build --experimental_convenience_symlinks=clean
+
+try-import %workspace%/../top.bazelrc
