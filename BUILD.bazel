@@ -13,24 +13,24 @@ cc_library(
         "DUCKDB_VERSION=\"dummy_version\"",
     ],
     deps = [
+        "concurrentqueue",
         "duckdb_hdrs",
         "fast_float",
         "fastpforlib",
         "fmt",
         "fsst",
+        "httplib",
+        "hyperloglog",
+        "jaro_winkler",
         "libpg_query",
         "mbedtls_wrapper",
-        "re2",
-        "utf8proc",
-        "yyjson",        
-        "pcg",
-        "skiplist",        
-        "jaro_winkler",
-        "hyperloglog",
-        "concurrentqueue",
-        "tdigest",
         "miniz",
-        "httplib",
+        "pcg",
+        "re2",
+        "skiplist",
+        "tdigest",
+        "utf8proc",
+        "yyjson",
     ],
 )
 
@@ -112,8 +112,11 @@ cc_library(
 
 cc_library(
     name = "fsst",
-    hdrs = ["third_party/fsst/fsst.h", "third_party/fsst/libfsst.hpp"],
     srcs = ["third_party/fsst/libfsst.cpp"],
+    hdrs = [
+        "third_party/fsst/fsst.h",
+        "third_party/fsst/libfsst.hpp",
+    ],
     strip_include_prefix = "third_party/fsst",
 )
 
@@ -131,12 +134,11 @@ cc_library(
 
 cc_library(
     name = "skiplist",
-    hdrs = glob(["third_party/skiplist/*.h"]),
     srcs = ["third_party/skiplist/SkipList.cpp"],
+    hdrs = glob(["third_party/skiplist/*.h"]),
     strip_include_prefix = "third_party/skiplist",
     deps = ["pcg"],
 )
-
 
 cc_library(
     name = "jaro_winkler",
@@ -146,8 +148,8 @@ cc_library(
 
 cc_library(
     name = "hyperloglog",
-    hdrs = ["third_party/hyperloglog/hyperloglog.hpp"],
     srcs = glob(["third_party/hyperloglog/*.cpp"]) + ["third_party/hyperloglog/sds.hpp"],
+    hdrs = ["third_party/hyperloglog/hyperloglog.hpp"],
     strip_include_prefix = "third_party/hyperloglog",
     deps = ["duckdb_hdrs"],
 )
@@ -166,8 +168,8 @@ cc_library(
 
 cc_library(
     name = "miniz",
-    hdrs = glob(["third_party/miniz/*.hpp"]),
     srcs = ["third_party/miniz/miniz.cpp"],
+    hdrs = glob(["third_party/miniz/*.hpp"]),
     strip_include_prefix = "third_party/miniz",
 )
 
@@ -175,4 +177,66 @@ cc_library(
     name = "httplib",
     hdrs = ["third_party/httplib/httplib.hpp"],
     strip_include_prefix = "third_party/httplib",
+)
+
+cc_library(
+    name = "sqlite3",
+    hdrs = ["tools/sqlite3_api_wrapper/include/sqlite3.h"],
+    defines = ["USE_DUCKDB_SHELL_WRAPPER"],
+    strip_include_prefix = "tools/sqlite3_api_wrapper/include",
+)
+
+cc_library(
+    name = "sqlite3_udf_api",
+    srcs = glob(["tools/sqlite3_api_wrapper/sqlite3_udf_api/*.cpp"]),
+    hdrs = glob(["tools/sqlite3_api_wrapper/sqlite3_udf_api/include/*"]),
+    defines = ["USE_DUCKDB_SHELL_WRAPPER"],
+    strip_include_prefix = "tools/sqlite3_api_wrapper/sqlite3_udf_api/include",
+    deps = [
+        "duckdb_hdrs",
+        "sqlite3",
+        "utf8proc",
+    ],
+)
+
+cc_library(
+    name = "sqlite3_api_wrapper",
+    srcs = glob(
+        [
+            "tools/sqlite3_api_wrapper/*.cpp",
+            "tools/sqlite3_api_wrapper/sqlite3/*.c",
+            "tools/sqlite3_api_wrapper/sqlite3/*.h",
+        ],
+    ),
+    hdrs = glob(
+        ["tools/sqlite3_api_wrapper/include/*"],
+        exclude = ["tools/sqlite3_api_wrapper/include/sqlite3.h"],
+    ),
+    defines = [
+        "SQLITE_SHELL_IS_UTF8",
+        "USE_DUCKDB_SHELL_WRAPPER",
+    ],
+    strip_include_prefix = "tools/sqlite3_api_wrapper/include",
+    deps = [
+        "duckdb_hdrs",
+        "sqlite3",
+        "sqlite3_udf_api",
+    ],
+)
+
+cc_binary(
+    name = "duckdb",
+    srcs = ["tools/shell/shell.c"],
+    defines = [
+        "SQLITE_OMIT_LOAD_EXTENSION=1",
+        "USE_DUCKDB_SHELL_WRAPPER",
+    ],
+    linkopts = [
+        "rstrtmgr.lib",
+        "bcrypt.lib",
+    ],
+    deps = [
+        "duckdb_srcs",
+        "sqlite3_api_wrapper",
+    ],
 )
